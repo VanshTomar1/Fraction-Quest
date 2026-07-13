@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Fraction Quest: Cosmic Shapes!</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6c5ce7">
     <style>
         :root {
             --bg-cosmic: linear-gradient(180deg, #6c5ce7 0%, #a29bfe 50%, #ffeaa7 100%);
@@ -39,7 +41,6 @@
             position: relative;
         }
 
-        /* Dynamic Click Particle Template */
         .click-spark {
             position: absolute;
             pointer-events: none;
@@ -53,7 +54,6 @@
             100% { transform: translate(-50%, -130%) scale(1.3) rotate(180deg); opacity: 0; }
         }
 
-        /* Viewport-Adaptive Game Container Frame */
         .game-wrapper {
             background: var(--window-bg);
             border: 5px solid var(--deep-purple);
@@ -75,7 +75,6 @@
             background-size: 14px 14px;
         }
 
-        /* Application Views Layout Matrix */
         .view-layer {
             display: none;
             width: 100%;
@@ -100,7 +99,6 @@
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        /* Animated Center Mascot for Children */
         .menu-mascot-zone {
             display: flex;
             flex-direction: column;
@@ -132,7 +130,6 @@
             100% { transform: translateY(-14px) rotate(3deg); }
         }
 
-        /* Text Styles */
         .brand-title {
             font-size: 2.6rem;
             color: #ff7675;
@@ -154,7 +151,6 @@
             margin-top: 5px;
         }
 
-        /* 3D Elastic Control Buttons */
         .btn-comic {
             background-color: var(--sky-blue);
             color: white;
@@ -190,7 +186,6 @@
         .btn-yellow { background-color: var(--neon-yellow); color: var(--deep-purple); }
         .btn-orange { background-color: #ff7675; }
 
-        /* Options Overlay Cards */
         .config-card {
             background: #f9f9f9;
             border: 3px dashed var(--deep-purple);
@@ -222,13 +217,22 @@
         }
         .custom-audio-wrapper:hover { transform: scale(1.02); }
 
-        /* HUD Header Navigation Layout */
+        /* Updated HUD Grid for Header Logo Integration */
         .hud-grid {
             display: flex;
             justify-content: space-between;
             width: 100%;
             align-items: center;
             margin-bottom: 5px;
+            gap: 5px;
+        }
+
+        .hud-logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 36px;
+            width: 36px;
         }
 
         .badge-info {
@@ -239,6 +243,8 @@
             font-weight: 900;
             font-size: 1rem;
             box-shadow: 2px 2px 0px var(--deep-purple);
+            flex-grow: 1;
+            text-align: center;
         }
 
         .btn-mini {
@@ -251,7 +257,6 @@
         }
         .btn-mini:active { transform: translateY(4px); box-shadow: 0 0px 0px var(--deep-purple); }
 
-        /* Track Level System Interface Layout components */
         .track-map-wrapper {
             width: 100%;
             display: flex;
@@ -284,7 +289,6 @@
             color: #7f8c8d;
         }
 
-        /* Fraction Character Display */
         .fraction-bubble {
             display: inline-flex;
             flex-direction: column;
@@ -311,7 +315,6 @@
             border-radius: 3px;
         }
 
-        /* Fully Scalable Graphical Node Box */
         .svg-canvas-box {
             flex: 1;
             width: 100%;
@@ -337,7 +340,6 @@
             cursor: pointer;
         }
 
-        /* Kid-Friendly Horizontal Token Display Strip */
         .object-strip-container {
             width: 100%;
             height: 44px;
@@ -374,7 +376,6 @@
             100% { transform: scale(1); }
         }
 
-        /* Action Panel Suit */
         .action-block {
             display: flex;
             flex-direction: column;
@@ -389,7 +390,6 @@
         }
         .split-row button { flex: 1; margin: 0; }
 
-        /* Modal Overlays Layout */
         .result-panel {
             position: absolute;
             top: 0;
@@ -438,7 +438,6 @@
             40%, 80% { transform: translateX(10px); }
         }
 
-        /* Toggle Button System Configuration Elements */
         .switch {
             position: relative;
             display: inline-block;
@@ -523,6 +522,15 @@
         <div class="view-layer" id="view-gameplay">
             <div class="hud-grid">
                 <button class="btn-comic btn-mini btn-pink" id="game-to-menu">🏠 Menu</button>
+                
+                <div class="hud-logo-container">
+                    <svg viewBox="0 0 100 100" width="100%" height="100%">
+                        <circle cx="50" cy="50" r="42" fill="#fff" stroke="#2d3436" stroke-width="8"/>
+                        <path d="M 50 50 L 50 8 A 42 42 0 0 1 92 50 Z" fill="#ff7675" stroke="#2d3436" stroke-width="6"/>
+                        <circle cx="50" cy="50" r="6" fill="#2d3436"/>
+                    </svg>
+                </div>
+
                 <div class="badge-info" id="display-level-indicator">Level 1</div>
                 <button class="btn-comic btn-mini btn-yellow" id="game-save-trigger">💾 Save</button>
             </div>
@@ -543,12 +551,10 @@
             </div>
 
             <div class="svg-canvas-box">
-                <svg id="canvas-svg-element" viewBox="0 0 100 100">
-                    </svg>
+                <svg id="canvas-svg-element" viewBox="0 0 100 100"></svg>
             </div>
 
-            <div class="object-strip-container" id="ui-object-strip">
-                </div>
+            <div class="object-strip-container" id="ui-object-strip"></div>
 
             <div class="action-block">
                 <div class="split-row">
@@ -583,7 +589,6 @@
 
         const visualTokensPool = ['🍎', '🍌', '🐱', '🐼', '🍓', '🐻', '🦁', '🐰', '🐸', '🦆', '🍭', '🚗', '🚀', '🎈'];
 
-        // --- HARDWARE SOUND FRAMEWORK VARIABLES ---
         let hardwareAudioCtx = null;
         let customUserMusicNode = null; 
         let defaultBgmTimer = null;
@@ -592,7 +597,6 @@
         const rhythmicNotes = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25]; 
         const basicMelodyPattern = [0, 4, 2, 5, 4, 7, 5, 4]; 
 
-        // --- DOM HOOK REFERENCES ---
         const masterWindow = document.getElementById('master-window');
         const viewMainMenu = document.getElementById('view-main-menu');
         const viewOptions = document.getElementById('view-options');
@@ -618,7 +622,37 @@
         const btnResetMusic = document.getElementById('btn-reset-music');
         const jsonLoader = document.getElementById('json-loader');
 
-        // --- PROCEDURAL AUDIO GENERATOR ENGINE ---
+        // --- NATIVE PWA BROWSER PROMPT INTERCEPT ENGINE ---
+        let deferredPromptEvent = null;
+
+        window.addEventListener('beforeinstallprompt', (event) => {
+            // Intercept standard browser banner
+            event.preventDefault();
+            deferredPromptEvent = event;
+            
+            // Automatically prompt the user to make the game native
+            setTimeout(() => {
+                if (deferredPromptEvent) {
+                    deferredPromptEvent.prompt();
+                    deferredPromptEvent.userChoice.then((choiceResult) => {
+                        if (choiceResult.outcome === 'accepted') {
+                            console.log('User installed the game application natively.');
+                        }
+                        deferredPromptEvent = null;
+                    });
+                }
+            }, 2000);
+        });
+
+        // Register service worker script for offline operations
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('PWA Service Worker Operational.', reg.scope))
+                    .catch(err => console.log('Service Worker registration failed: ', err));
+            });
+        }
+
         function executeAudioSynth(freq, waveform, duration, customVolume = 0.12) {
             if (!hardwareAudioCtx) hardwareAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
             
@@ -637,10 +671,8 @@
             oscNode.stop(hardwareAudioCtx.currentTime + duration);
         }
 
-        // --- DISSIMILAR SPECIAL 10-LEVEL FANFARE MUSIC SYNTHESIZER ---
         function playCelebrationFanfare() {
             if (!appState.settings.sfxEnabled) return;
-            // High-tempo triumphant major chord sequence
             let fanfareChords = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50]; 
             fanfareChords.forEach((frequency, index) => {
                 setTimeout(() => {
@@ -664,7 +696,6 @@
             }
         }
 
-        // --- CUSTOM AUDIO UPLOADER DRIVERS ---
         audioFileInput.addEventListener('change', (e) => {
             const chosenFile = e.target.files[0];
             if (!chosenFile) return;
@@ -696,14 +727,13 @@
         function adjustMusicPlaybackState() {
             if (customUserMusicNode) {
                 if (appState.settings.bgmEnabled) {
-                    customUserMusicNode.play().catch(e => console.log("Awaiting core interaction..."));
+                    customUserMusicNode.play().catch(e => console.log("Awaiting interaction..."));
                 } else {
                     customUserMusicNode.pause();
                 }
             }
         }
 
-        // --- COMIC CLICK PARTICLE ENGINE & BURST EFFECTS ---
         function spawnVisualSparkElement(x, y) {
             const spark = document.createElement('div');
             spark.className = 'click-spark';
@@ -722,7 +752,6 @@
             }
         });
 
-        // --- CELEBRATION EFFECT CASCADE (EVERY 10 LEVELS) ---
         function executeMassiveCelebrationExplosion() {
             let iterationCount = 35;
             for(let i = 0; i < iterationCount; i++) {
@@ -734,7 +763,6 @@
             }
         }
 
-        // --- MATH PROCEDURAL GEOMETRY BUILDER ---
         function executeProceduralLevelGen(level) {
             let limitDen = 4;
             if (level > 10) limitDen = 6;
@@ -772,19 +800,16 @@
             return `M 50 50 L ${sx} ${sy} A 44 44 0 ${targetLargeArcFlag} 1 ${ex} ${ey} Z`;
         }
 
-        // --- GRAPHICS RENDERING PIPELINE ---
         function executeDisplayUpdate() {
             displayLevelIndicator.textContent = `Level ${appState.currentLevel}`;
             uiTargetNumerator.textContent = appState.targetNum;
             uiTargetDenominator.textContent = appState.targetDen;
 
-            // 1. Calculate and update Visual Track Level System metrics
             let stepIndex = (appState.currentLevel - 1) % 10; 
             let trackPercentage = (stepIndex / 10) * 100;
             uiLevelTrackFill.style.width = `${trackPercentage}%`;
             uiTrackLegendText.textContent = `Step ${stepIndex} of 10 to Next Trophy 🏆`;
 
-            // 2. Process Vector Svg Slices
             canvasSvgElement.innerHTML = '';
             const sliceWeight = 1 / appState.targetDen;
 
@@ -811,7 +836,6 @@
                 canvasSvgElement.appendChild(pathSvgNode);
             }
 
-            // 3. Update Token Strip
             uiObjectStrip.innerHTML = '';
             for (let j = 0; j < appState.targetDen; j++) {
                 const tokenElement = document.createElement('span');
@@ -827,10 +851,8 @@
             }
         }
 
-        // --- VALIDATION CORE ENGINE INTERFACES ---
         function verifyPlayerInput() {
             if (appState.shadedCount === appState.targetNum) {
-                // Determine if level completed matches 10-level milestone requirement
                 if (appState.currentLevel % 10 === 0) {
                     playCelebrationFanfare();
                     executeMassiveCelebrationExplosion();
@@ -840,7 +862,6 @@
                     feedbackResolutionBtn.textContent = "Advance World ➡️";
                     feedbackResolutionBtn.className = "btn-comic btn-yellow";
                 } else {
-                    // Standard success route
                     if(appState.settings.sfxEnabled) {
                         executeAudioSynth(523.25, 'sine', 0.1);
                         setTimeout(() => executeAudioSynth(659.25, 'sine', 0.1), 80);
@@ -864,7 +885,6 @@
             }
         }
 
-        // --- INPUT EVENT INTERFACES ---
         document.getElementById('btn-action-add').addEventListener('click', () => {
             if (appState.shadedCount < appState.targetDen) {
                 appState.shadedCount++;
@@ -893,7 +913,6 @@
             }
         });
 
-        // --- SCREEN NAVIGATION ROUTING SUITE ---
         function ensureAudioInitialized() {
             if (!hardwareAudioCtx) {
                 hardwareAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -933,7 +952,6 @@
         });
         triggerAudioUpload.addEventListener('click', () => audioFileInput.click());
 
-        // --- SYSTEM LOCAL FILE PERSISTENCE ---
         document.getElementById('game-save-trigger').addEventListener('click', () => {
             const dataString = JSON.stringify(appState);
             const blobObj = new Blob([dataString], {type: 'application/json'});
