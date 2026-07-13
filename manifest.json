@@ -1,0 +1,18 @@
+{
+  "name": "Fraction Quest: Cosmic Shapes!",
+  "short_name": "FractionQuest",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#6c5ce7",
+  "theme-color": "#6c5ce7",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='42' fill='%23fff' stroke='%232d3436' stroke-width='8'/><path d='M 50 50 L 50 8 A 42 42 0 0 1 92 50 Z' fill='%23ff7675' stroke='%232d3436' stroke-width='6'/><circle cx='50' cy='50' r='6' fill='%232d3436'/></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
+}
