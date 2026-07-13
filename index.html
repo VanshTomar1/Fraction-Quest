@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fraction Quest: Cosmic Shapes!</title>
+    <style>
+        :root {
+            --bg-cosmic: linear-gradient(180deg, #6c5ce7 0%, #a29bfe 50%, #ffeaa7 100%);
+            --window-bg: #ffffff;
+            --bubblegum-pink: #fd79a8;
+            --neon-yellow: #fdcb6e;
+            --bright-mint: #00b894;
+            --sky-blue: #74b9ff;
+            --deep-purple: #2d3436;
+            --slice-blank: #f1f2f6;
+            --slice-active: #ff7675;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Ubuntu', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            background: var(--bg-cosmic);
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            color: var(--deep-purple);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Dynamic Click Particle Template */
+        .click-spark {
+            position: absolute;
+            pointer-events: none;
+            font-size: 1.4rem;
+            z-index: 9999;
+            animation: sparkOut 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        @keyframes sparkOut {
+            0% { transform: translate(-50%, -50%) scale(0.4) rotate(0deg); opacity: 1; }
+            100% { transform: translate(-50%, -130%) scale(1.3) rotate(180deg); opacity: 0; }
+        }
+
+        /* Viewport-Adaptive Game Container Frame */
+        .game-wrapper {
+            background: var(--window-bg);
+            border: 5px solid var(--deep-purple);
+            border-radius: 28px;
+            box-shadow: 0 14px 0px var(--deep-purple);
+            width: 100%;
+            max-width: 410px;
+            height: 92vh;
+            max-height: 660px;
+            min-height: 480px;
+            padding: 15px 20px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            overflow: hidden;
+            background-image: radial-gradient(rgba(0, 0, 0, 0.02) 15%, transparent 16%);
+            background-size: 14px 14px;
+        }
+
+        /* Application Views Layout Matrix */
+        .view-layer {
+            display: none;
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            flex-grow: 1;
+        }
+
+        .view-layer.active-view {
+            display: flex;
+            animation: viewBounce 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        #view-main-menu {
+            justify-content: space-evenly;
+        }
+
+        @keyframes viewBounce {
+            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Animated Center Mascot for Children */
+        .menu-mascot-zone {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: floatMascot 3.5s ease-in-out infinite alternate;
+            margin: 10px 0;
+        }
+
+        .mascot-character {
+            font-size: 5.5rem;
+            filter: drop-shadow(0 6px 0px rgba(0,0,0,0.06));
+        }
+
+        .mascot-bubble {
+            background: #ffeaa7;
+            font-size: 0.95rem;
+            font-weight: 900;
+            padding: 6px 14px;
+            border-radius: 14px;
+            border: 3px solid var(--deep-purple);
+            box-shadow: 3px 3px 0px var(--deep-purple);
+            margin-top: 5px;
+            text-align: center;
+        }
+
+        @keyframes floatMascot {
+            0% { transform: translateY(0px) rotate(-2deg); }
+            100% { transform: translateY(-14px) rotate(3deg); }
+        }
+
+        /* Text Styles */
+        .brand-title {
+            font-size: 2.6rem;
+            color: #ff7675;
+            text-shadow: 3px 3px 0px var(--neon-yellow), 5px 5px 0px var(--deep-purple);
+            text-align: center;
+            line-height: 1.1;
+            animation: wiggle 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes wiggle {
+            0% { transform: rotate(-1.5deg); }
+            100% { transform: rotate(1.5deg); }
+        }
+
+        .section-header {
+            font-size: 1.8rem;
+            color: var(--sky-blue);
+            text-shadow: 2.5px 2.5px 0px var(--deep-purple);
+            margin-top: 5px;
+        }
+
+        /* 3D Elastic Control Buttons */
+        .btn-comic {
+            background-color: var(--sky-blue);
+            color: white;
+            border: 3.5px solid var(--deep-purple);
+            padding: 11px 20px;
+            font-size: 1.2rem;
+            font-weight: 900;
+            border-radius: 18px;
+            cursor: pointer;
+            box-shadow: 0 6px 0px var(--deep-purple);
+            transition: all 0.1s ease;
+            position: relative;
+            width: 100%;
+            max-width: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-comic:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 7px 0px var(--deep-purple);
+        }
+
+        .btn-comic:active {
+            transform: translateY(6px);
+            box-shadow: 0 0px 0px var(--deep-purple);
+        }
+
+        .btn-pink { background-color: var(--bubblegum-pink); }
+        .btn-mint { background-color: var(--bright-mint); }
+        .btn-yellow { background-color: var(--neon-yellow); color: var(--deep-purple); }
+        .btn-orange { background-color: #ff7675; }
+
+        /* Options Overlay Cards */
+        .config-card {
+            background: #f9f9f9;
+            border: 3px dashed var(--deep-purple);
+            border-radius: 16px;
+            padding: 15px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: auto 0;
+        }
+
+        .config-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .custom-audio-wrapper {
+            background: #ffeaa7;
+            border: 3px solid var(--deep-purple);
+            border-radius: 12px;
+            padding: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .custom-audio-wrapper:hover { transform: scale(1.02); }
+
+        /* HUD Header Navigation Layout */
+        .hud-grid {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .badge-info {
+            background: var(--neon-yellow);
+            padding: 4px 12px;
+            border-radius: 12px;
+            border: 3px solid var(--deep-purple);
+            font-weight: 900;
+            font-size: 1rem;
+            box-shadow: 2px 2px 0px var(--deep-purple);
+        }
+
+        .btn-mini {
+            padding: 4px 10px;
+            font-size: 0.85rem;
+            border-radius: 10px;
+            max-width: fit-content;
+            margin: 0;
+            box-shadow: 0 4px 0px var(--deep-purple);
+        }
+        .btn-mini:active { transform: translateY(4px); box-shadow: 0 0px 0px var(--deep-purple); }
+
+        /* Track Level System Interface Layout components */
+        .track-map-wrapper {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 4px 0;
+            gap: 3px;
+        }
+
+        .level-track {
+            width: 100%;
+            height: 12px;
+            background: #dfe6e9;
+            border: 3px solid var(--deep-purple);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .level-track-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #55efc4, var(--bright-mint));
+            transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .track-legend-text {
+            font-size: 0.75rem;
+            font-weight: 900;
+            color: #7f8c8d;
+        }
+
+        /* Fraction Character Display */
+        .fraction-bubble {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 2.6rem;
+            font-weight: 900;
+            background: #fff;
+            padding: 6px 22px;
+            border-radius: 18px;
+            border: 3.5px dashed var(--bubblegum-pink);
+            animation: float 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-5px); }
+        }
+
+        .line-divider {
+            width: 45px;
+            height: 6px;
+            background-color: var(--deep-purple);
+            margin: 2px 0;
+            border-radius: 3px;
+        }
+
+        /* Fully Scalable Graphical Node Box */
+        .svg-canvas-box {
+            flex: 1;
+            width: 100%;
+            min-height: 110px;
+            max-height: 145px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 4px 0;
+        }
+
+        .svg-canvas-box svg {
+            height: 100%;
+            max-width: 145px;
+            filter: drop-shadow(0px 6px 0px rgba(0,0,0,0.08));
+        }
+
+        .slice {
+            transition: fill 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            stroke: var(--deep-purple);
+            stroke-width: 4;
+            stroke-linejoin: round;
+            cursor: pointer;
+        }
+
+        /* Kid-Friendly Horizontal Token Display Strip */
+        .object-strip-container {
+            width: 100%;
+            height: 44px;
+            background: #f8f9fa;
+            border: 3px dashed #b2bec3;
+            border-radius: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            margin: 4px 0;
+            overflow: hidden;
+        }
+
+        .strip-token {
+            font-size: 1.5rem;
+            transition: filter 0.25s ease, transform 0.25s ease;
+        }
+
+        .token-grayscale {
+            filter: grayscale(100%);
+            opacity: 0.25;
+        }
+
+        .token-colored {
+            filter: grayscale(0%);
+            opacity: 1;
+            animation: tokenPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes tokenPop {
+            0% { transform: scale(0.6); }
+            100% { transform: scale(1); }
+        }
+
+        /* Action Panel Suit */
+        .action-block {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .split-row {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+        .split-row button { flex: 1; margin: 0; }
+
+        /* Modal Overlays Layout */
+        .result-panel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 24px;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            z-index: 100;
+            text-align: center;
+        }
+
+        .result-panel.active-panel {
+            display: flex;
+            animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes popUp {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .avatar-space {
+            font-size: 4.5rem;
+            margin-bottom: 5px;
+            animation: jump 0.5s infinite alternate;
+        }
+
+        @keyframes jump {
+            from { transform: translateY(0); }
+            to { transform: translateY(-15px); }
+        }
+
+        .window-shake {
+            animation: masterShake 0.4s ease-in-out;
+        }
+
+        @keyframes masterShake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+
+        /* Toggle Button System Configuration Elements */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 46px;
+            height: 24px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            border: 2px solid var(--deep-purple);
+            transition: .2s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px; width: 14px;
+            left: 3px; bottom: 3px;
+            background-color: white;
+            border: 2px solid var(--deep-purple);
+            transition: .2s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--bright-mint); }
+        input:checked + .slider:before { transform: translateX(20px); }
+    </style>
+</head>
+<body>
+
+    <div class="game-wrapper" id="master-window">
+        
+        <div class="view-layer active-view" id="view-main-menu">
+            <h1 class="brand-title">Fraction<br>Quest!</h1>
+            
+            <div class="menu-mascot-zone">
+                <div class="mascot-character">🍕✨</div>
+                <div class="mascot-bubble">Ready for an adventure?</div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; width:100%; align-items:center; gap:10px;">
+                <button class="btn-comic btn-pink" id="nav-new-game">🚀 Play Game</button>
+                <button class="btn-comic btn-yellow" id="nav-options">⚙️ Options</button>
+                <button class="btn-comic btn-mint" id="nav-load-save">📂 Load Save</button>
+            </div>
+            <input type="file" id="json-loader" accept=".json" style="display: none;">
+        </div>
+
+        <div class="view-layer" id="view-options">
+            <h2 class="section-header">Game Settings</h2>
+            
+            <div class="config-card">
+                <div class="config-row">
+                    <span>Sound Effects (SFX)</span>
+                    <label class="switch">
+                        <input type="checkbox" id="toggle-sfx" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="config-row">
+                    <span>Music Engine</span>
+                    <label class="switch">
+                        <input type="checkbox" id="toggle-bgm" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <div class="custom-audio-wrapper" id="trigger-audio-upload">
+                    <p style="font-weight: 900; font-size: 0.9rem;">🎵 Custom Track Override</p>
+                    <p style="font-size: 0.7rem; color: #555; margin-top: 2px;">Upload custom device audio track</p>
+                </div>
+                <input type="file" id="audio-file-input" accept="audio/*" style="display: none;">
+                
+                <button class="btn-comic btn-orange" id="btn-reset-music" style="max-width: 100%; margin: 0; font-size: 0.95rem; padding: 8px; box-shadow: 0 4px 0px var(--deep-purple);">🔄 Reset to Default Music</button>
+            </div>
+
+            <button class="btn-comic btn-pink" id="options-back-menu">🏠 Save & Return</button>
+        </div>
+
+        <div class="view-layer" id="view-gameplay">
+            <div class="hud-grid">
+                <button class="btn-comic btn-mini btn-pink" id="game-to-menu">🏠 Menu</button>
+                <div class="badge-info" id="display-level-indicator">Level 1</div>
+                <button class="btn-comic btn-mini btn-yellow" id="game-save-trigger">💾 Save</button>
+            </div>
+
+            <div class="track-map-wrapper">
+                <div class="level-track">
+                    <div class="level-track-fill" id="ui-level-track-fill"></div>
+                </div>
+                <div class="track-legend-text" id="ui-track-legend-text">Level Step 0 of 10</div>
+            </div>
+
+            <div style="font-weight: 900; font-size: 1rem; color: #555; margin-bottom: 2px;">Match the magic fraction!</div>
+            
+            <div class="fraction-bubble">
+                <div id="ui-target-numerator">2</div>
+                <div class="line-divider"></div>
+                <div id="ui-target-denominator">4</div>
+            </div>
+
+            <div class="svg-canvas-box">
+                <svg id="canvas-svg-element" viewBox="0 0 100 100">
+                    </svg>
+            </div>
+
+            <div class="object-strip-container" id="ui-object-strip">
+                </div>
+
+            <div class="action-block">
+                <div class="split-row">
+                    <button class="btn-comic btn-pink" id="btn-action-remove">➖ Less</button>
+                    <button class="btn-comic btn-mint" id="btn-action-add">➕ More</button>
+                </div>
+                <button class="btn-comic" id="btn-action-verify" style="background-color: #6c5ce7; box-shadow: 0 6px 0px #4834d4; max-width: 100%;">🔮 Cast Magic Check!</button>
+            </div>
+        </div>
+
+        <div class="result-panel" id="ui-feedback-panel">
+            <div class="avatar-space" id="feedback-avatar">🎉</div>
+            <div class="section-header" id="feedback-headline" style="color:var(--deep-purple); text-shadow:none; font-size:1.6rem; margin-bottom: 15px;">Incredible!</div>
+            <button class="btn-comic btn-mint" id="feedback-resolution-btn">Next Level ➡️</button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- CENTRAL APPLICATION STATE ---
+        let appState = {
+            currentLevel: 1,
+            targetNum: 2,
+            targetDen: 4,
+            shadedCount: 0,
+            levelObject: '🍎', 
+            settings: {
+                sfxEnabled: true,
+                bgmEnabled: true
+            }
+        };
+
+        const visualTokensPool = ['🍎', '🍌', '🐱', '🐼', '🍓', '🐻', '🦁', '🐰', '🐸', '🦆', '🍭', '🚗', '🚀', '🎈'];
+
+        // --- HARDWARE SOUND FRAMEWORK VARIABLES ---
+        let hardwareAudioCtx = null;
+        let customUserMusicNode = null; 
+        let defaultBgmTimer = null;
+        let defaultBgmStep = 0;
+
+        const rhythmicNotes = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25]; 
+        const basicMelodyPattern = [0, 4, 2, 5, 4, 7, 5, 4]; 
+
+        // --- DOM HOOK REFERENCES ---
+        const masterWindow = document.getElementById('master-window');
+        const viewMainMenu = document.getElementById('view-main-menu');
+        const viewOptions = document.getElementById('view-options');
+        const viewGameplay = document.getElementById('view-gameplay');
+        
+        const uiFeedbackPanel = document.getElementById('ui-feedback-panel');
+        const feedbackAvatar = document.getElementById('feedback-avatar');
+        const feedbackHeadline = document.getElementById('feedback-headline');
+        const feedbackResolutionBtn = document.getElementById('feedback-resolution-btn');
+
+        const displayLevelIndicator = document.getElementById('display-level-indicator');
+        const uiTargetNumerator = document.getElementById('ui-target-numerator');
+        const uiTargetDenominator = document.getElementById('ui-target-denominator');
+        const canvasSvgElement = document.getElementById('canvas-svg-element');
+        const uiObjectStrip = document.getElementById('ui-object-strip');
+        const uiLevelTrackFill = document.getElementById('ui-level-track-fill');
+        const uiTrackLegendText = document.getElementById('ui-track-legend-text');
+
+        const toggleSfx = document.getElementById('toggle-sfx');
+        const toggleBgm = document.getElementById('toggle-bgm');
+        const audioFileInput = document.getElementById('audio-file-input');
+        const triggerAudioUpload = document.getElementById('trigger-audio-upload');
+        const btnResetMusic = document.getElementById('btn-reset-music');
+        const jsonLoader = document.getElementById('json-loader');
+
+        // --- PROCEDURAL AUDIO GENERATOR ENGINE ---
+        function executeAudioSynth(freq, waveform, duration, customVolume = 0.12) {
+            if (!hardwareAudioCtx) hardwareAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            let oscNode = hardwareAudioCtx.createOscillator();
+            let gainNode = hardwareAudioCtx.createGain();
+            
+            oscNode.type = waveform;
+            oscNode.frequency.setValueAtTime(freq, hardwareAudioCtx.currentTime);
+            gainNode.gain.setValueAtTime(customVolume, hardwareAudioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, hardwareAudioCtx.currentTime + duration);
+            
+            oscNode.connect(gainNode);
+            gainNode.connect(hardwareAudioCtx.destination);
+            
+            oscNode.start();
+            oscNode.stop(hardwareAudioCtx.currentTime + duration);
+        }
+
+        // --- DISSIMILAR SPECIAL 10-LEVEL FANFARE MUSIC SYNTHESIZER ---
+        function playCelebrationFanfare() {
+            if (!appState.settings.sfxEnabled) return;
+            // High-tempo triumphant major chord sequence
+            let fanfareChords = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50]; 
+            fanfareChords.forEach((frequency, index) => {
+                setTimeout(() => {
+                    executeAudioSynth(frequency, 'triangle', 0.45, 0.16);
+                }, index * 60);
+            });
+        }
+
+        function runProceduralMusicTick() {
+            if (appState.settings.bgmEnabled && !customUserMusicNode) {
+                let noteIndex = basicMelodyPattern[defaultBgmStep];
+                let frequencyValue = rhythmicNotes[noteIndex];
+                executeAudioSynth(frequencyValue, 'sine', 0.4, 0.03);
+                defaultBgmStep = (defaultBgmStep + 1) % basicMelodyPattern.length;
+            }
+        }
+
+        function launchDefaultBgmTracking() {
+            if (!defaultBgmTimer) {
+                defaultBgmTimer = setInterval(runProceduralMusicTick, 450);
+            }
+        }
+
+        // --- CUSTOM AUDIO UPLOADER DRIVERS ---
+        audioFileInput.addEventListener('change', (e) => {
+            const chosenFile = e.target.files[0];
+            if (!chosenFile) return;
+
+            if (customUserMusicNode) {
+                customUserMusicNode.pause();
+                customUserMusicNode.remove();
+            }
+
+            const generatedUrl = URL.createObjectURL(chosenFile);
+            customUserMusicNode = new Audio(generatedUrl);
+            customUserMusicNode.loop = true;
+            
+            triggerAudioUpload.style.backgroundColor = "var(--bright-mint)";
+            triggerAudioUpload.querySelector('p').textContent = "🎵 Custom Track Active!";
+            adjustMusicPlaybackState();
+        });
+
+        btnResetMusic.addEventListener('click', () => {
+            if (customUserMusicNode) {
+                customUserMusicNode.pause();
+                customUserMusicNode = null;
+            }
+            triggerAudioUpload.style.backgroundColor = "#ffeaa7";
+            triggerAudioUpload.querySelector('p').textContent = "🎵 Custom Track Override";
+            executeAudioSynth(523.25, 'sine', 0.15, 0.08); 
+        });
+
+        function adjustMusicPlaybackState() {
+            if (customUserMusicNode) {
+                if (appState.settings.bgmEnabled) {
+                    customUserMusicNode.play().catch(e => console.log("Awaiting core interaction..."));
+                } else {
+                    customUserMusicNode.pause();
+                }
+            }
+        }
+
+        // --- COMIC CLICK PARTICLE ENGINE & BURST EFFECTS ---
+        function spawnVisualSparkElement(x, y) {
+            const spark = document.createElement('div');
+            spark.className = 'click-spark';
+            const randomEmojis = ['⭐', '✨', '🎈', '🍭', '🍕', '💎', '👑', '🎉'];
+            spark.textContent = randomEmojis[Math.floor(Math.random() * randomEmojis.length)];
+            spark.style.left = `${x}px`;
+            spark.style.top = `${y}px`;
+            document.body.appendChild(spark);
+            setTimeout(() => spark.remove(), 500);
+        }
+
+        window.addEventListener('click', (event) => {
+            spawnVisualSparkElement(event.pageX, event.pageY);
+            if (appState.settings.sfxEnabled && Math.random() > 0.7) {
+                executeAudioSynth(500 + Math.random() * 250, 'sine', 0.05, 0.05);
+            }
+        });
+
+        // --- CELEBRATION EFFECT CASCADE (EVERY 10 LEVELS) ---
+        function executeMassiveCelebrationExplosion() {
+            let iterationCount = 35;
+            for(let i = 0; i < iterationCount; i++) {
+                setTimeout(() => {
+                    let randomX = Math.random() * window.innerWidth;
+                    let randomY = Math.random() * window.innerHeight;
+                    spawnVisualSparkElement(randomX, randomY);
+                }, i * 35);
+            }
+        }
+
+        // --- MATH PROCEDURAL GEOMETRY BUILDER ---
+        function executeProceduralLevelGen(level) {
+            let limitDen = 4;
+            if (level > 10) limitDen = 6;
+            if (level > 20) limitDen = 8;
+            if (level > 30) limitDen = 10;
+            if (level > 40) limitDen = 12;
+
+            let floorDen = Math.max(2, limitDen - 3);
+            let calculatedDen = Math.floor(Math.random() * (limitDen - floorDen + 1)) + floorDen;
+            let calculatedNum = Math.floor(Math.random() * calculatedDen) + 1;
+
+            appState.currentLevel = level;
+            appState.targetNum = calculatedNum;
+            appState.targetDen = calculatedDen;
+            appState.shadedCount = 0;
+            appState.levelObject = visualTokensPool[Math.floor(Math.random() * visualTokensPool.length)];
+        }
+
+        function calculatedArcCoordinates(percent) {
+            const x = Math.cos(2 * Math.PI * percent);
+            const y = Math.sin(2 * Math.PI * percent);
+            return [x, y];
+        }
+
+        function drawDynamicArcPath(startPercent, endPercent) {
+            const [startX, startY] = calculatedArcCoordinates(startPercent);
+            const [endX, endY] = calculatedArcCoordinates(endPercent);
+            
+            const sx = 50 + startX * 44;
+            const sy = 50 + startY * 44;
+            const ex = 50 + endX * 44;
+            const ey = 50 + endY * 44;
+
+            const targetLargeArcFlag = (endPercent - startPercent) > 0.5 ? 1 : 0;
+            return `M 50 50 L ${sx} ${sy} A 44 44 0 ${targetLargeArcFlag} 1 ${ex} ${ey} Z`;
+        }
+
+        // --- GRAPHICS RENDERING PIPELINE ---
+        function executeDisplayUpdate() {
+            displayLevelIndicator.textContent = `Level ${appState.currentLevel}`;
+            uiTargetNumerator.textContent = appState.targetNum;
+            uiTargetDenominator.textContent = appState.targetDen;
+
+            // 1. Calculate and update Visual Track Level System metrics
+            let stepIndex = (appState.currentLevel - 1) % 10; 
+            let trackPercentage = (stepIndex / 10) * 100;
+            uiLevelTrackFill.style.width = `${trackPercentage}%`;
+            uiTrackLegendText.textContent = `Step ${stepIndex} of 10 to Next Trophy 🏆`;
+
+            // 2. Process Vector Svg Slices
+            canvasSvgElement.innerHTML = '';
+            const sliceWeight = 1 / appState.targetDen;
+
+            for (let i = 0; i < appState.targetDen; i++) {
+                const vectorPathStr = drawDynamicArcPath(i * sliceWeight, (i + 1) * sliceWeight);
+                const pathSvgNode = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                pathSvgNode.setAttribute('d', vectorPathStr);
+                pathSvgNode.setAttribute('class', 'slice');
+                
+                if (i < appState.shadedCount) {
+                    pathSvgNode.setAttribute('fill', 'var(--slice-active)');
+                } else {
+                    pathSvgNode.setAttribute('fill', 'var(--slice-blank)');
+                }
+
+                pathSvgNode.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (i === appState.shadedCount && appState.shadedCount < appState.targetDen) {
+                        document.getElementById('btn-action-add').click();
+                    } else if (i === appState.shadedCount - 1) {
+                        document.getElementById('btn-action-remove').click();
+                    }
+                });
+                canvasSvgElement.appendChild(pathSvgNode);
+            }
+
+            // 3. Update Token Strip
+            uiObjectStrip.innerHTML = '';
+            for (let j = 0; j < appState.targetDen; j++) {
+                const tokenElement = document.createElement('span');
+                tokenElement.className = 'strip-token';
+                tokenElement.textContent = appState.levelObject ? appState.levelObject : '🍎';
+                
+                if (j < appState.shadedCount) {
+                    tokenElement.classList.add('token-colored');
+                } else {
+                    tokenElement.classList.add('token-grayscale');
+                }
+                uiObjectStrip.appendChild(tokenElement);
+            }
+        }
+
+        // --- VALIDATION CORE ENGINE INTERFACES ---
+        function verifyPlayerInput() {
+            if (appState.shadedCount === appState.targetNum) {
+                // Determine if level completed matches 10-level milestone requirement
+                if (appState.currentLevel % 10 === 0) {
+                    playCelebrationFanfare();
+                    executeMassiveCelebrationExplosion();
+                    
+                    feedbackAvatar.textContent = "🏆👑";
+                    feedbackHeadline.textContent = `GRAND CELEBRATION!\nLevel ${appState.currentLevel} Milestone Mastered!`;
+                    feedbackResolutionBtn.textContent = "Advance World ➡️";
+                    feedbackResolutionBtn.className = "btn-comic btn-yellow";
+                } else {
+                    // Standard success route
+                    if(appState.settings.sfxEnabled) {
+                        executeAudioSynth(523.25, 'sine', 0.1);
+                        setTimeout(() => executeAudioSynth(659.25, 'sine', 0.1), 80);
+                        setTimeout(() => executeAudioSynth(783.99, 'sine', 0.2), 160);
+                    }
+                    feedbackAvatar.textContent = "🥳";
+                    feedbackHeadline.textContent = "Awesome Job! Correct!";
+                    feedbackResolutionBtn.textContent = "Next Level ➡️";
+                    feedbackResolutionBtn.className = "btn-comic btn-mint";
+                }
+                uiFeedbackPanel.classList.add('active-panel');
+            } else {
+                if(appState.settings.sfxEnabled) executeAudioSynth(140, 'triangle', 0.3);
+                masterWindow.classList.add('window-shake');
+                
+                feedbackAvatar.textContent = "🤖";
+                feedbackHeadline.textContent = "Not quite! Try again!";
+                feedbackResolutionBtn.textContent = "Try Again";
+                feedbackResolutionBtn.className = "btn-comic btn-pink";
+                uiFeedbackPanel.classList.add('active-panel');
+            }
+        }
+
+        // --- INPUT EVENT INTERFACES ---
+        document.getElementById('btn-action-add').addEventListener('click', () => {
+            if (appState.shadedCount < appState.targetDen) {
+                appState.shadedCount++;
+                if(appState.settings.sfxEnabled) executeAudioSynth(400 + (appState.shadedCount * 30), 'sine', 0.06);
+                executeDisplayUpdate();
+            }
+        });
+
+        document.getElementById('btn-action-remove').addEventListener('click', () => {
+            if (appState.shadedCount > 0) {
+                if(appState.settings.sfxEnabled) executeAudioSynth(600 - (appState.shadedCount * 30), 'sine', 0.06);
+                appState.shadedCount--;
+                executeDisplayUpdate();
+            }
+        });
+
+        document.getElementById('btn-action-verify').addEventListener('click', verifyPlayerInput);
+
+        feedbackResolutionBtn.addEventListener('click', () => {
+            uiFeedbackPanel.classList.remove('active-panel');
+            masterWindow.classList.remove('window-shake');
+            
+            if (feedbackResolutionBtn.textContent.includes("Next") || feedbackResolutionBtn.textContent.includes("Advance")) {
+                executeProceduralLevelGen(appState.currentLevel + 1);
+                executeDisplayUpdate();
+            }
+        });
+
+        // --- SCREEN NAVIGATION ROUTING SUITE ---
+        function ensureAudioInitialized() {
+            if (!hardwareAudioCtx) {
+                hardwareAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            launchDefaultBgmTracking();
+            adjustMusicPlaybackState();
+        }
+
+        document.getElementById('nav-new-game').addEventListener('click', () => {
+            ensureAudioInitialized();
+            viewMainMenu.classList.remove('active-view');
+            viewGameplay.classList.add('active-view');
+            executeProceduralLevelGen(1);
+            executeDisplayUpdate();
+        });
+
+        document.getElementById('nav-options').addEventListener('click', () => {
+            ensureAudioInitialized();
+            viewMainMenu.classList.remove('active-view');
+            viewOptions.classList.add('active-view');
+        });
+
+        document.getElementById('options-back-menu').addEventListener('click', () => {
+            viewOptions.classList.remove('active-view');
+            viewMainMenu.classList.add('active-view');
+        });
+
+        document.getElementById('game-to-menu').addEventListener('click', () => {
+            viewGameplay.classList.remove('active-view');
+            viewMainMenu.classList.add('active-view');
+        });
+
+        toggleSfx.addEventListener('change', (e) => { appState.settings.sfxEnabled = e.target.checked; });
+        toggleBgm.addEventListener('change', (e) => { 
+            appState.settings.bgmEnabled = e.target.checked; 
+            adjustMusicPlaybackState();
+        });
+        triggerAudioUpload.addEventListener('click', () => audioFileInput.click());
+
+        // --- SYSTEM LOCAL FILE PERSISTENCE ---
+        document.getElementById('game-save-trigger').addEventListener('click', () => {
+            const dataString = JSON.stringify(appState);
+            const blobObj = new Blob([dataString], {type: 'application/json'});
+            const downloadUrl = URL.createObjectURL(blobObj);
+            
+            const dummyLink = document.createElement('a');
+            dummyLink.href = downloadUrl;
+            dummyLink.download = `FractionQuest_Level_${appState.currentLevel}.json`;
+            dummyLink.click();
+            URL.revokeObjectURL(downloadUrl);
+        });
+
+        document.getElementById('nav-load-save').addEventListener('click', () => jsonLoader.click());
+
+        jsonLoader.addEventListener('change', (e) => {
+            const targetedFile = e.target.files[0];
+            if (!targetedFile) return;
+
+            const readerInstance = new FileReader();
+            readerInstance.onload = function(evt) {
+                try {
+                    const parsedState = JSON.parse(evt.target.result);
+                    if (parsedState.currentLevel && parsedState.targetDen) {
+                        appState = parsedState;
+                        toggleSfx.checked = appState.settings.sfxEnabled;
+                        toggleBgm.checked = appState.settings.bgmEnabled;
+                        
+                        ensureAudioInitialized();
+                        viewMainMenu.classList.remove('active-view');
+                        viewGameplay.classList.add('active-view');
+                        executeDisplayUpdate();
+                    }
+                } catch (err) {
+                    alert("Error processing file data!");
+                }
+            };
+            readerInstance.readAsText(targetedFile);
+        });
+    </script>
+</body>
+</html>
